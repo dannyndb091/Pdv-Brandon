@@ -21,6 +21,8 @@ public class Pagos {
     @Column(nullable = false)
     Integer payDoc;
     @Column(nullable = false)
+    Integer payType; // 1 = Egreso, 2 = Ingreso
+    @Column(nullable = false)
     Boolean payStatus;
     @Column(nullable = false)
     BigDecimal payCash;

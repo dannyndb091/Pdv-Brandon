@@ -1,25 +1,25 @@
 package com.pdv.Test.Controller;
 
-import com.pdv.Test.Models.DTOs.Compras.CprAddItem;
-import com.pdv.Test.Models.DTOs.Compras.CprCloseBuy;
-import com.pdv.Test.Models.DTOs.Compras.CprNewDoc;
+import com.pdv.Test.Models.DTOs.Ventas.VtaAddItem;
+import com.pdv.Test.Models.DTOs.Ventas.VtaCloseSell;
+import com.pdv.Test.Models.DTOs.Ventas.VtaNewDoc;
 import com.pdv.Test.Service.Others.ErrorsList;
-import com.pdv.Test.Service.ComprasService;
+import com.pdv.Test.Service.VentasService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/buys")
+@RequestMapping("/api/v1/sells")
 @RequiredArgsConstructor
-public class ComprasController {
-    private final ComprasService comprasService;
+public class VentasController {
+    private final VentasService ventasService;
     private final ErrorsList errors;
 
     @PostMapping(value = "new")
-    public ResponseEntity<Object> createBuyDoc(@RequestBody CprNewDoc cprNewDoc){
+    public ResponseEntity<Object> createSellDoc(@RequestBody VtaNewDoc vta){
         try {
-            return comprasService.createBuyDoc(cprNewDoc);
+            return ventasService.createSellDoc(vta);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -28,9 +28,9 @@ public class ComprasController {
     }
 
     @PostMapping(value = "addItem")
-    public ResponseEntity<Object> addItem(@RequestBody CprAddItem addItem){
+    public ResponseEntity<Object> addSellItem(@RequestBody VtaAddItem addItem){
         try {
-            return comprasService.addItem(addItem);
+            return ventasService.addSellItem(addItem);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -38,10 +38,10 @@ public class ComprasController {
         }
     }
 
-    @PostMapping(value = "closeBuy")
-    public ResponseEntity<Object> closeBuy(@RequestBody CprCloseBuy closeBuy){
+    @PostMapping(value = "close")
+    public ResponseEntity<Object> closeSellDoc(@RequestBody VtaCloseSell closeSell){
         try {
-            return comprasService.closeBuy(closeBuy);
+            return ventasService.closeSellDoc(closeSell);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -50,9 +50,9 @@ public class ComprasController {
     }
 
     @DeleteMapping(value = "delItem")
-    public ResponseEntity<Object> delItem(@RequestBody CprAddItem addItem){
+    public ResponseEntity<Object> delSellItem(@RequestBody VtaAddItem addItem){
         try {
-            return comprasService.delItem(addItem);
+            return ventasService.delSellItem(addItem);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -60,10 +60,10 @@ public class ComprasController {
         }
     }
 
-    @DeleteMapping(value = "delBuy")
-    public ResponseEntity<Object> delBuy(@RequestBody CprNewDoc buyDoc){
+    @DeleteMapping(value = "delete")
+    public ResponseEntity<Object> deleteSellDoc(@RequestBody VtaNewDoc docDelete){
         try {
-            return comprasService.delBuy(buyDoc);
+            return ventasService.deleteSellDoc(docDelete);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -71,10 +71,10 @@ public class ComprasController {
         }
     }
 
-    @PutMapping(value = "cancelBuy")
-    public ResponseEntity<Object> cancelBuy(@RequestBody CprAddItem addItem){
+    @PutMapping(value = "cancel")
+    public ResponseEntity<Object> cancelSellDoc(@RequestBody VtaNewDoc docCancel){
         try {
-            return comprasService.cancelBuy(addItem);
+            return ventasService.cancelSellDoc(docCancel);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -83,9 +83,9 @@ public class ComprasController {
     }
 
     @PutMapping(value = "updateItem")
-    public ResponseEntity<Object> updateItem(@RequestBody CprAddItem addItem){
+    public ResponseEntity<Object> updateItem(@RequestBody VtaAddItem addItem){
         try {
-            return comprasService.updateItem(addItem);
+            return ventasService.updateItem(addItem);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];

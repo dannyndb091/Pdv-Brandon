@@ -1,4 +1,4 @@
-package com.pdv.Test.Models.DTOs.Compras;
+package com.pdv.Test.Models.DTOs.Ventas;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,18 +11,8 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CprAddItem {
+public class VtaCloseSell {
     Integer invoice;
-    String clCode;
-    String proSKU;
-    Integer proQty;
-    Integer movLine;
-    BigDecimal movPU;
-    BigDecimal movNet;
-    BigDecimal movDisc;
-    BigDecimal movSubtotal;
-    BigDecimal movTax;
-    BigDecimal movTotal;
     BigDecimal docNet;
     BigDecimal docDisc;
     BigDecimal docSubtotal;

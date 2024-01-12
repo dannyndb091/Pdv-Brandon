@@ -4,5 +4,5 @@ import com.pdv.Test.Models.Inventario;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InventarioRepository extends JpaRepository<Inventario,Integer> {
-    Inventario finByInvPro(Integer proId);
+    Inventario findByInvPro(Integer proId);
 }

@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -17,14 +17,14 @@ import java.util.Date;
 @Table(name="arching", uniqueConstraints = {@UniqueConstraint(name = "const_arc_date", columnNames = {"arcDate"})})
 public class Cortes {
     @Id
-    @GeneratedValue
-    Integer arcId;
     @Column(nullable = false)
-    Date arcDate;
+    LocalDate arcDate;
     @Column(nullable = false)
     Boolean arcClosed;
     @Column(nullable = false)
     BigDecimal arcCash;
     @Column(nullable = false)
     BigDecimal arcDigital;
+    @Column(nullable = false)
+    BigDecimal arcApertureCash;
 }

@@ -13,12 +13,14 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="movimientos")
+@Table(name="movimientos", uniqueConstraints = {
+        @UniqueConstraint(name = "const_mov_doc_line", columnNames = {"movDocId","movLine"})})
 public class Movimientos {
     @Id
     @GeneratedValue
     Integer movId;
     Integer movDocId;
+    Integer movLine;
     Integer movProdId;
     Integer movType; //1 = Compra, 2 = Venta
     Integer movQty;

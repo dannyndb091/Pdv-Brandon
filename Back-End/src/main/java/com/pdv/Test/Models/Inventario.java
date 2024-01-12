@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,7 +20,9 @@ public class Inventario {
     Integer invId;
     Integer invPro;
     Integer invBuys;
+    BigDecimal invBuysValue;
     Integer invSells;
+    BigDecimal invSellsValue;
     Integer invQty; //Disponible
     Integer invRes; //Reservado, venta no completado
     Integer invInc; //Producto por ingresar, compra no completada.

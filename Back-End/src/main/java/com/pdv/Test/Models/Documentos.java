@@ -14,14 +14,16 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="documents", uniqueConstraints = {@UniqueConstraint(name = "const_doc_Invoice", columnNames = {"docInvoice"})})
+@Table(name="documents", uniqueConstraints = {@UniqueConstraint(name = "const_doc_Invoice", columnNames = {"docId"})})
 public class Documentos {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     Integer docId;
     LocalDate docDate;
     Integer docIdCliente;
-    Integer docType; //1 = Compra, 2 = Venta
+    Integer docType; //1 = Compra,
+                     //2 = Venta,
+                     //3 = Merma
     Boolean docCompleted;
     Boolean docStatus;
     BigDecimal docNet;

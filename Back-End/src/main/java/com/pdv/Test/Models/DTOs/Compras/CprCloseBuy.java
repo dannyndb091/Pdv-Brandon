@@ -11,18 +11,8 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CprAddItem {
+public class CprCloseBuy {
     Integer invoice;
-    String clCode;
-    String proSKU;
-    Integer proQty;
-    Integer movLine;
-    BigDecimal movPU;
-    BigDecimal movNet;
-    BigDecimal movDisc;
-    BigDecimal movSubtotal;
-    BigDecimal movTax;
-    BigDecimal movTotal;
     BigDecimal docNet;
     BigDecimal docDisc;
     BigDecimal docSubtotal;
