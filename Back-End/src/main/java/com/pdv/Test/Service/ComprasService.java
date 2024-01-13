@@ -74,13 +74,17 @@ public class ComprasService {
     }
 
     @Transactional
-    public ResponseEntity<Object> addItem(CprAddItem addItem) {
-        return addItemTransaction(addItem);
+    public ResponseEntity<Object> addItem(CprAddItem addItem, boolean put) {
+        return addItemTransaction(addItem, put);
     }
 
     @Transactional(rollbackFor = {HibernateException.class, RuntimeException.class})
-    private ResponseEntity<Object> addItemTransaction(CprAddItem addItem) {
+    private ResponseEntity<Object> addItemTransaction(CprAddItem addItem, boolean put) {
         try {
+            if (put){
+                if (addItem.getMovLine() == null || addItem.getMovLine() < 1) throw new RuntimeException("«ERR-C44»");
+            }
+
             Optional<Documentos> doc = docRep.findById(addItem.getInvoice());
             if (doc.isEmpty()) throw new RuntimeException("«ERR-C02»");
             if (!doc.get().getDocStatus()) throw new RuntimeException("«ERR-C06»");
@@ -95,13 +99,24 @@ public class ComprasService {
             Inventario inv = invRep.findByInvPro(pro.getProId());
             if (inv == null) inv = createInv(pro.getProId());
 
-            inv.setInvInc(inv.getInvInc() + addItem.getProQty());
+            Movimientos proMovExist;
+            Integer movId = null;
 
-            Movimientos proMovExist = movRep.findFirstByMovDocIdAndMovProdId(doc.get().getDocId(), pro.getProId());
-            if (proMovExist != null) throw new RuntimeException("«ERR-C16»");
+            if (put){
+                proMovExist = movRep.findByMovDocIdAndMovLine(doc.get().getDocId(), addItem.getMovLine());
+                if (proMovExist == null) throw new RuntimeException("«ERR-C45»");
+                if (!proMovExist.getMovProdId().equals(pro.getProId()) || !proMovExist.getMovLine().equals(addItem.getMovLine()))
+                    throw new RuntimeException("«ERR-C46»");
+                movId = proMovExist.getMovId();
+            } else {
+                proMovExist = movRep.findFirstByMovDocIdAndMovProdId(doc.get().getDocId(), pro.getProId());
+                if (proMovExist != null) throw new RuntimeException("«ERR-C16»");
+            }
 
-            Movimientos lastMov = movRep.findFirstByMovDocIdOrderByMovLineDesc(doc.get().getDocId());
-            Integer line = (lastMov == null) ? 1 : lastMov.getMovLine() + 1;
+            if (!put){
+                Movimientos lastMov = movRep.findFirstByMovDocIdOrderByMovLineDesc(doc.get().getDocId());
+                addItem.setMovLine((lastMov == null) ? 1 : lastMov.getMovLine() + 1);
+            }
 
             if (addItem.getMovDisc().compareTo(addItem.getMovNet()) >= 0) throw new RuntimeException("«ERR-C31»");
             BigDecimal result = addItem.getMovPU().multiply((BigDecimal.valueOf(addItem.getProQty())));
@@ -113,19 +128,32 @@ public class ComprasService {
             result = result.add(taxes);
             if (result.compareTo(addItem.getMovTotal()) != 0) throw new RuntimeException("«ERR-C15»");
 
-            doc.get().setDocNet(doc.get().getDocNet().add(addItem.getMovNet()));
-            doc.get().setDocDiscount(doc.get().getDocDiscount().add(addItem.getMovDisc()));
-            doc.get().setDocSubtotal(doc.get().getDocSubtotal().add(addItem.getMovSubtotal()));
-            doc.get().setDocTax(doc.get().getDocTax().add(addItem.getMovTax()));
-            doc.get().setDocTotal(doc.get().getDocTotal().add(addItem.getMovTotal()));
-            doc.get().setDocProductQty(doc.get().getDocProductQty() + addItem.getProQty());
+            if (put){
+                inv.setInvInc(inv.getInvInc() - proMovExist.getMovQty() + addItem.getProQty());
+                doc.get().setDocNet(doc.get().getDocNet().add(addItem.getMovNet()).subtract(proMovExist.getMovNet()));
+                doc.get().setDocDiscount(doc.get().getDocDiscount().add(addItem.getMovDisc()).subtract(proMovExist.getMovDiscount()));
+                doc.get().setDocSubtotal(doc.get().getDocSubtotal().add(addItem.getMovSubtotal()).subtract(proMovExist.getMovSubtotal()));
+                doc.get().setDocTax(doc.get().getDocTax().add(addItem.getMovTax()).subtract(proMovExist.getMovTax()));
+                doc.get().setDocTotal(doc.get().getDocTotal().add(addItem.getMovTotal()).subtract(proMovExist.getMovTotal()));
+                doc.get().setDocProductQty(doc.get().getDocProductQty() + addItem.getProQty() - proMovExist.getMovQty());
+            }
+            else {
+                inv.setInvInc(inv.getInvInc() + addItem.getProQty());
+                doc.get().setDocNet(doc.get().getDocNet().add(addItem.getMovNet()));
+                doc.get().setDocDiscount(doc.get().getDocDiscount().add(addItem.getMovDisc()));
+                doc.get().setDocSubtotal(doc.get().getDocSubtotal().add(addItem.getMovSubtotal()));
+                doc.get().setDocTax(doc.get().getDocTax().add(addItem.getMovTax()));
+                doc.get().setDocTotal(doc.get().getDocTotal().add(addItem.getMovTotal()));
+                doc.get().setDocProductQty(doc.get().getDocProductQty() + addItem.getProQty());
+            }
 
             invRep.save(inv);
 
-            movRep.save(Movimientos.builder()
+            Movimientos toSave = Movimientos.builder()
+                    .movId(movId)
                     .movDocId(doc.get().getDocId())
                     .movProdId(pro.getProId())
-                    .movLine(line)
+                    .movLine(addItem.getMovLine())
                     .movType(1)
                     .movQty(addItem.getProQty())
                     .movCompleted(false)
@@ -135,14 +163,22 @@ public class ComprasService {
                     .movSubtotal(addItem.getMovSubtotal())
                     .movTax(addItem.getMovTax())
                     .movTotal(addItem.getMovTotal())
-                    .build());
+                    .build();
+
+            if (put){
+                Movimientos getMovId = movRep.findByMovDocIdAndMovLine(doc.get().getDocId(), addItem.getMovLine());
+                if (getMovId == null) throw new RuntimeException("«ERR-C45»");
+                toSave.setMovId(getMovId.getMovId());
+            }
+
+            movRep.save(toSave);
 
             docRep.save(doc.get());
 
             return ResponseEntity.ok(CprAddItem.builder()
                     .invoice(doc.get().getDocId())
                     .proQty(inv.getInvInc())
-                    .movLine(line)
+                    .movLine(addItem.getMovLine())
                     .docNet(doc.get().getDocNet())
                     .docDisc(doc.get().getDocDiscount())
                     .docSubtotal(doc.get().getDocSubtotal())
@@ -360,22 +396,39 @@ public class ComprasService {
     }
 
     @Transactional
-    public ResponseEntity<Object> updateItem(CprAddItem addItem) {
-        return updateItemTransaction(addItem);
-    }
-
-    @Transactional(rollbackFor = {HibernateException.class, RuntimeException.class})
-    private ResponseEntity<Object> updateItemTransaction(CprAddItem addItem) {
-        return null;
-    }
-
-    @Transactional
     public ResponseEntity<Object> delBuy(CprNewDoc buyDoc) {
         return delBuyTransaction(buyDoc);
     }
 
     @Transactional(rollbackFor = {HibernateException.class, RuntimeException.class})
     private ResponseEntity<Object> delBuyTransaction(CprNewDoc buyDoc) {
-        return null;
+        try {
+            Optional<Documentos> doc = docRep.findById(buyDoc.getInvoice());
+            if (doc.isEmpty()) throw new RuntimeException("«ERR-C02»");
+            if (doc.get().getDocCompleted()) throw new RuntimeException("«ERR-C40»");
+            if (!doc.get().getDocStatus()) throw new RuntimeException("«ERR-C41»");
+
+            ClienteProveedor prov = cliRep.findByClCode(buyDoc.getClCode());
+            if (prov == null) throw new RuntimeException("«ERR-C01»");
+            if (!prov.getClId().equals(doc.get().getDocIdCliente())) throw new RuntimeException("«ERR-C42»");
+
+            List<Movimientos> movs = movRep.findAllByMovDocIdOrderByMovLineAsc(doc.get().getDocId());
+
+            for (Movimientos m : movs){
+                Inventario inv = invRep.findByInvPro(m.getMovProdId());
+                if (inv == null) throw new RuntimeException("«ERR-C43»");
+
+                inv.setInvInc(inv.getInvInc() - m.getMovQty());
+
+                invRep.save(inv);
+                movRep.delete(m);
+            }
+
+            docRep.delete(doc.get());
+
+            return ResponseEntity.ok("");
+        } catch (Exception e){
+            throw new HibernateException(e);
+        }
     }
 }
