@@ -23,7 +23,9 @@ public class Inventario {
     BigDecimal invBuysValue;
     Integer invSells;
     BigDecimal invSellsValue;
+    BigDecimal invDcrValue; //Valor de Producto Mermado.
     Integer invQty; //Disponible
     Integer invRes; //Reservado, venta no completado
     Integer invInc; //Producto por ingresar, compra no completada.
+    Integer invDcr; //Producto Mermado.
 }

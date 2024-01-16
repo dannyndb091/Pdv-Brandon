@@ -5,6 +5,7 @@ import com.pdv.Test.Models.DTOs.Compras.CprAddItem;
 import com.pdv.Test.Models.DTOs.Compras.CprCloseBuy;
 import com.pdv.Test.Models.DTOs.Compras.CprNewDoc;
 import com.pdv.Test.Repository.*;
+import com.pdv.Test.Service.Others.Verifiers;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.HibernateException;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +27,15 @@ public class ComprasService {
     private final MovimientosRepository movRep;
     private final ProductosRepository proRep;
     private final PagosRepository payRep;
+    private final Verifiers verifiers;
 
     @Transactional
     public ResponseEntity<Object> createBuyDoc(CprNewDoc cprNewDoc) {
-        return creatoBuyDocTransaction(cprNewDoc);
+        return createBuyDocTransaction(cprNewDoc);
     }
 
     @Transactional(rollbackFor = {HibernateException.class, RuntimeException.class})
-    private ResponseEntity<Object> creatoBuyDocTransaction(CprNewDoc cprNewDoc) {
+    private ResponseEntity<Object> createBuyDocTransaction(CprNewDoc cprNewDoc) {
         try {
             if (cprNewDoc.getDate() == null) throw new RuntimeException("«ERR-C04»"); //Sin fecha para el documento.
             if (cprNewDoc.getClCode() == null) throw new RuntimeException("«ERR-C05»"); //Sin codigo de Provedor.
@@ -81,6 +83,8 @@ public class ComprasService {
     @Transactional(rollbackFor = {HibernateException.class, RuntimeException.class})
     private ResponseEntity<Object> addItemTransaction(CprAddItem addItem, boolean put) {
         try {
+            verifyAddItem(addItem);
+
             if (put){
                 if (addItem.getMovLine() == null || addItem.getMovLine() < 1) throw new RuntimeException("«ERR-C44»");
             }
@@ -111,9 +115,7 @@ public class ComprasService {
             } else {
                 proMovExist = movRep.findFirstByMovDocIdAndMovProdId(doc.get().getDocId(), pro.getProId());
                 if (proMovExist != null) throw new RuntimeException("«ERR-C16»");
-            }
 
-            if (!put){
                 Movimientos lastMov = movRep.findFirstByMovDocIdOrderByMovLineDesc(doc.get().getDocId());
                 addItem.setMovLine((lastMov == null) ? 1 : lastMov.getMovLine() + 1);
             }
@@ -165,12 +167,6 @@ public class ComprasService {
                     .movTotal(addItem.getMovTotal())
                     .build();
 
-            if (put){
-                Movimientos getMovId = movRep.findByMovDocIdAndMovLine(doc.get().getDocId(), addItem.getMovLine());
-                if (getMovId == null) throw new RuntimeException("«ERR-C45»");
-                toSave.setMovId(getMovId.getMovId());
-            }
-
             movRep.save(toSave);
 
             docRep.save(doc.get());
@@ -188,6 +184,16 @@ public class ComprasService {
         } catch (Exception e){
             throw new HibernateException(e);
         }
+    }
+
+    private void verifyAddItem(CprAddItem addItem) {
+        verifiers.verifyProQty(addItem.getProQty());
+        verifiers.verifyBigDecimalDataSuperiorCero(addItem.getMovPU());
+        verifiers.verifyBigDecimalDataSuperiorCero(addItem.getMovNet());
+        verifiers.verifyBigDecimalData(addItem.getMovDisc());
+        verifiers.verifyBigDecimalDataSuperiorCero(addItem.getMovSubtotal());
+        verifiers.verifyBigDecimalData(addItem.getMovTax());
+        verifiers.verifyBigDecimalDataSuperiorCero(addItem.getMovTotal());
     }
 
     @Transactional(rollbackFor = {HibernateException.class, RuntimeException.class})
@@ -407,6 +413,7 @@ public class ComprasService {
             if (doc.isEmpty()) throw new RuntimeException("«ERR-C02»");
             if (doc.get().getDocCompleted()) throw new RuntimeException("«ERR-C40»");
             if (!doc.get().getDocStatus()) throw new RuntimeException("«ERR-C41»");
+            if (doc.get().getDocType() != 1) throw new RuntimeException("«ERR-C47»");
 
             ClienteProveedor prov = cliRep.findByClCode(buyDoc.getClCode());
             if (prov == null) throw new RuntimeException("«ERR-C01»");

@@ -30,7 +30,7 @@ public class VentasController {
     @PostMapping(value = "addItem")
     public ResponseEntity<Object> addSellItem(@RequestBody VtaAddItem addItem){
         try {
-            return ventasService.addSellItem(addItem);
+            return ventasService.addSellItem(addItem, false);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -85,7 +85,7 @@ public class VentasController {
     @PutMapping(value = "updateItem")
     public ResponseEntity<Object> updateItem(@RequestBody VtaAddItem addItem){
         try {
-            return ventasService.updateItem(addItem);
+            return ventasService.addSellItem(addItem, true);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];

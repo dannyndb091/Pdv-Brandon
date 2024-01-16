@@ -1,8 +1,8 @@
 package com.pdv.Test.Controller;
 
-import com.pdv.Test.Models.DTOs.Compras.CprAddItem;
-import com.pdv.Test.Models.DTOs.Compras.CprCloseBuy;
-import com.pdv.Test.Models.DTOs.Compras.CprNewDoc;
+import com.pdv.Test.Models.DTOs.Inventario.DcrAddItem;
+import com.pdv.Test.Models.DTOs.Inventario.DcrCloseDoc;
+import com.pdv.Test.Models.DTOs.Inventario.DcrNewDoc;
 import com.pdv.Test.Service.InventarioService;
 import com.pdv.Test.Service.Others.ErrorsList;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +17,9 @@ public class InventarioController {
     private final ErrorsList errors;
 
     @PostMapping(value = "new")
-    public ResponseEntity<Object> createBuyDoc(@RequestBody CprNewDoc cprNewDoc){
+    public ResponseEntity<Object> createDecrease(){
         try {
-            return null;
-            //return comprasService.createBuyDoc(cprNewDoc);
+            return inventarioService.createDecrease();
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -29,10 +28,9 @@ public class InventarioController {
     }
 
     @PostMapping(value = "addItem")
-    public ResponseEntity<Object> addItem(@RequestBody CprAddItem addItem){
+    public ResponseEntity<Object> addItem(@RequestBody DcrAddItem addItem){
         try {
-            return null;
-            //return comprasService.addItem(addItem);
+            return inventarioService.addItem(addItem,false);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -40,11 +38,10 @@ public class InventarioController {
         }
     }
 
-    @PostMapping(value = "closeBuy")
-    public ResponseEntity<Object> closeBuy(@RequestBody CprCloseBuy closeBuy){
+    @PostMapping(value = "close")
+    public ResponseEntity<Object> closeDecrease(@RequestBody DcrCloseDoc closeBuy){
         try {
-            return null;
-            //return comprasService.closeBuy(closeBuy);
+            return inventarioService.closeDecrease(closeBuy);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -53,10 +50,9 @@ public class InventarioController {
     }
 
     @DeleteMapping(value = "delItem")
-    public ResponseEntity<Object> delItem(@RequestBody CprAddItem addItem){
+    public ResponseEntity<Object> delItem(@RequestBody DcrAddItem addItem){
         try {
-            return null;
-            //return comprasService.delItem(addItem);
+            return inventarioService.delItem(addItem);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -64,11 +60,10 @@ public class InventarioController {
         }
     }
 
-    @DeleteMapping(value = "delBuy")
-    public ResponseEntity<Object> delBuy(@RequestBody CprNewDoc buyDoc){
+    @DeleteMapping(value = "delDcr")
+    public ResponseEntity<Object> delDecrease(@RequestBody DcrNewDoc dcrDoc){
         try {
-            return null;
-            //return comprasService.delBuy(buyDoc);
+            return inventarioService.deleteDecrease(dcrDoc);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -76,11 +71,10 @@ public class InventarioController {
         }
     }
 
-    @PutMapping(value = "cancelBuy")
-    public ResponseEntity<Object> cancelBuy(@RequestBody CprAddItem addItem){
+    @PutMapping(value = "cancelDcr")
+    public ResponseEntity<Object> cancelDecrease(@RequestBody DcrNewDoc dcrDoc){
         try {
-            return null;
-            //return comprasService.cancelBuy(addItem);
+            return inventarioService.cancelDecrease(dcrDoc);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
@@ -89,10 +83,9 @@ public class InventarioController {
     }
 
     @PutMapping(value = "updateItem")
-    public ResponseEntity<Object> updateItem(@RequestBody CprAddItem addItem){
+    public ResponseEntity<Object> updateItem(@RequestBody DcrAddItem addItem){
         try {
-            return null;
-            //return comprasService.updateItem(addItem);
+            return inventarioService.addItem(addItem,true);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];

@@ -1,5 +1,6 @@
 package com.pdv.Test.Service.Others;
 
+import com.pdv.Test.Models.DTOs.Inventario.DcrCloseDoc;
 import com.pdv.Test.Models.DTOs.Ventas.VtaCloseSell;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -141,6 +142,12 @@ public class Verifiers {
         verifyBigDecimalData(closeSell.getDocDisc());
         verifyBigDecimalDataSuperiorCero(closeSell.getDocSubtotal());
         verifyBigDecimalData(closeSell.getDocTax());
+        verifyBigDecimalDataSuperiorCero(closeSell.getDocTotal());
+    }
+
+    public void verifyCloseDecrease(DcrCloseDoc closeSell) {
+        if(closeSell.getInvoice() == null || closeSell.getDocTotal() == null)
+            throw new RuntimeException("«ERR-I18»");
         verifyBigDecimalDataSuperiorCero(closeSell.getDocTotal());
     }
 }
