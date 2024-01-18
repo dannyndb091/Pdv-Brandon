@@ -1,6 +1,89 @@
 /* You can add global styles to this file, and also import other style files */
-.prevent-select {
+a.prevent-select {
     -webkit-user-select: none; /* Safari */
     -ms-user-select: none; /* IE 10 and IE 11 */
     user-select: none; /* Standard syntax */
+    text-decoration: none;
   }
+
+html, body {
+    height: 100%;
+}
+
+.navWidth{
+    width: 100px;
+}
+
+.shadowDarker {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.45)!important;
+}
+
+.grid1 {
+    display: grid;
+    height: 100%;
+    grid-template-rows: max-content auto;
+}
+
+.grid2 {
+    display: grid;
+    grid-template-columns: 100px auto;
+}
+
+.pad20 {
+    padding: 20px 20px;
+}
+
+.padBottom10 {
+    padding-bottom: 10px;
+}
+
+.padBottom5 {
+    padding-bottom: 5px;
+}
+
+.separator {
+    padding-top: 20px;
+    padding-bottom: 25px;
+}
+
+.lineGradient {
+    background: linear-gradient(90deg, rgba(235,235,235,0) 0%, rgba(239,239,239,0.8575805322128851) 12%, rgba(240,240,240,1) 50%, rgba(220,220,220,0.7175245098039216) 88%, rgba(214,214,214,0) 100%);
+    width: 100%;
+    height: 2px;
+}
+
+.grid3 {
+    display: inline-grid;
+    align-content: center;
+    grid-template-rows: min-content;
+    padding: 20px 8px;
+}
+
+.itemLeft {    
+    width: 100%;
+    height: 60px;
+    border: 0px;
+    border-color: #fff!important;
+    display: inline-grid;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    grid-template-rows: min-content min-content;
+    background-color: unset;
+}
+
+.itemLeft:hover {    
+    filter: drop-shadow(0px 0px 9px white);
+}
+
+.item-selected {
+    filter: drop-shadow(0px 0px 9px white);
+}
+
+a.smallFont {
+    font-size: small;
+}
+
+.selfCenter{
+    justify-self: center;
+}

@@ -15,11 +15,11 @@ public interface DocumentosRepository extends JpaRepository<Documentos,Integer> 
 
     Integer countByDocDateAndDocType(LocalDate now, int i);
 
-    List<Documentos> findAllByDocDateAndDocType(LocalDate arcDate, int i);
-
     Integer countByDocDateAndDocTypeAndDocCompleted(LocalDate arcDate, int i, boolean b);
 
     Integer countByDocIdClienteAndDocTypeAndDocCompletedAndDocStatus(Integer clId, int i, boolean b, boolean b1);
 
     Integer countByDocTypeAndDocCompleted(int i, boolean b);
+
+    List<Documentos> findAllByDocDateAndDocTypeAndDocCompletedAndDocStatus(LocalDate arcDate, int i, boolean b, boolean b1);
 }

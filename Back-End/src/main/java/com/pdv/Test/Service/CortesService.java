@@ -74,7 +74,7 @@ public class CortesService {
             BigDecimal totalArch = arch.getArcCash().add(arch.getArcDigital());
             BigDecimal docsSum = BigDecimal.valueOf(0);
 
-            List<Documentos> docs = docRep.findAllByDocDateAndDocType(arch.getArcDate(),2);
+            List<Documentos> docs = docRep.findAllByDocDateAndDocTypeAndDocCompletedAndDocStatus(arch.getArcDate(),2,true,true);
 
             for (Documentos doc : docs){
                 docsSum = docsSum.add(doc.getDocTotal());
