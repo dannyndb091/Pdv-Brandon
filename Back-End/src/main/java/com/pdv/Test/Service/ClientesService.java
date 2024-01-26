@@ -124,4 +124,8 @@ public class ClientesService {
             throw new HibernateException(e);
         }
     }
+
+    public ResponseEntity<Object> getToSell() {
+        return ResponseEntity.ok().body(cliRep.findAllByClStatusAndClTypeClientNotOrderByClNameAsc(true,1));
+    }
 }

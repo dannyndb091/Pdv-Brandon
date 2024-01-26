@@ -15,6 +15,12 @@ import { ClientDetailedComponent } from './Components/client-detailed/client-det
 import { ProductsComponent } from './Components/products/products.component';
 import { ProductDetailedComponent } from './Components/product-detailed/product-detailed.component';
 import { ReportsComponent } from './Components/reports/reports.component';
+import { PaymentProcessComponent } from './Components/payment-process/payment-process.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button'
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ClientSelectComponent } from './Components/client-select/client-select.component';
+import { ProductSelectComponent } from './Components/product-select/product-select.component';
 
 @NgModule({
   declarations: [
@@ -28,14 +34,20 @@ import { ReportsComponent } from './Components/reports/reports.component';
     ClientDetailedComponent,
     ProductsComponent,
     ProductDetailedComponent,
-    ReportsComponent
+    ReportsComponent,
+    PaymentProcessComponent,
+    ClientSelectComponent,
+    ProductSelectComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    MatDialogModule,
+    MatSlideToggleModule,
+    MatButtonModule 
   ],
   providers: [],
   bootstrap: [AppComponent]

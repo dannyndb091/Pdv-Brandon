@@ -1,5 +1,7 @@
 package com.pdv.Test.Service;
 
+import com.pdv.Test.Models.DTOs.Errors.ErrorResponse;
+import com.pdv.Test.Models.DTOs.Productos.ProductList;
 import com.pdv.Test.Models.DTOs.Productos.UpdateProduct;
 import com.pdv.Test.Models.Inventario;
 import com.pdv.Test.Models.Productos;
@@ -12,8 +14,11 @@ import org.hibernate.HibernateException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -135,5 +140,29 @@ public class ProductosService {
         } catch (Exception e){
             throw new HibernateException(e);
         }
+    }
+
+    public ResponseEntity<Object> selectableToSell() {
+        List<Productos> result = proRep.findAllByProStatus(true);
+        if (result.isEmpty()) return ResponseEntity.badRequest().body(ErrorResponse.builder().err("ERR").Message("No hay productos de venta disponibles.").build());
+
+        List<ProductList> data = new ArrayList<>();
+
+        for (Productos p : result) {
+            Inventario inv = invRep.findByInvPro(p.getProId());
+
+            data.add(ProductList.builder()
+                    .proCode(p.getProSku())
+                    .proName(p.getProName())
+                    .proUnit(p.getProUnit())
+                    .proFinalPrice(p.getProFinalPrice())
+                    .proMaxPercDisc(p.getProMaxPercDisc())
+                    .invQty(inv.getInvQty())
+                    .invRes(inv.getInvRes())
+                    .invInc(inv.getInvInc())
+                    .proPrice(p.getProPrice()).build());
+        }
+
+        return ResponseEntity.ok().body(data);
     }
 }

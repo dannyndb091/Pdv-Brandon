@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost")
 public class ProductosController {
     private final ProductosService productosService;
     private final ErrorsList errors;
@@ -41,6 +42,17 @@ public class ProductosController {
     public ResponseEntity<Object> deleteProduct(@RequestBody Productos pro){
         try {
             return productosService.deleteProduct(pro);
+        }
+        catch (Exception e){
+            String error = e.getMessage().split("[«»]")[1];
+            return ResponseEntity.badRequest().body(errors.getErrorMsg(error));
+        }
+    }
+
+    @GetMapping(value = "get/selectableToSell/")
+    public ResponseEntity<Object> selectableToSell(){
+        try {
+            return productosService.selectableToSell();
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];

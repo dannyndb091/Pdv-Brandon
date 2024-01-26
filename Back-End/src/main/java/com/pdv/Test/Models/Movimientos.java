@@ -22,7 +22,7 @@ public class Movimientos {
     Integer movDocId;
     Integer movLine;
     Integer movProdId;
-    Integer movType; //1 = Compra, 2 = Venta
+    Integer movType; //1 = Entrada, 2 = Salida
     Integer movQty;
     @Column(nullable = false)
     Boolean movCompleted;

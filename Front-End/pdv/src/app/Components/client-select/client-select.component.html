@@ -1,0 +1,41 @@
+<div mat-dialog-content>
+    <div class="grid4">
+        <div class="selecCliTitle">
+            <div class="selfVerticalCenter padBottom10 docCliSelectHead">
+                <div class="marginRight10">
+                    <a class="display-5 prevent-select fw500">Seleciona un Cliente</a>
+                </div>
+                <div class="selfVerticalCenter">
+                    <button type="button" class="btn btn-danger" (click)="closeDialog()">X</button>
+                </div>
+            </div>
+            <div class="padBottom10">
+                <div class="lineGradient ng-tns-c15-0"></div>
+            </div>
+            <div class="selectCliTable" style="overflow-y: none !important;">
+                <div class="bodyDocuments">
+                    <div class="tableContainer">
+                      <table class="table table-bordered table-striped table-hover table-sm table-borderless" id="ClientsTable">
+                        <thead class="table-primary">
+                          <tr>
+                            <th>Codigo</th>
+                            <th>Nombre de Cliente</th>
+                            <th>Correo</th>
+                            <th>Telefono</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let cli of clients" (click)="selectClient(cli)">
+                            <th scope="row">{{cli.clCode}}</th>
+                            <td>{{cli.clName}}</td>
+                            <td>{{cli.clMail}}</td>
+                            <td>{{cli.clCellphone}}</td>
+                          </tr>                       
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+</div>

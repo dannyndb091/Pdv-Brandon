@@ -1,0 +1,157 @@
+<div mat-dialog-content>
+    <div class="grid4">
+        <div class="selecCliTitle">
+            <div class="selfVerticalCenter padBottom10 docCliSelectHead">
+                <div class="marginRight10">
+                    <a class="display-5 prevent-select fw500">Seleciona un producto</a>
+                </div>
+                <div class="selfVerticalCenter">
+                    <button type="button" class="btn btn-danger" (click)="closeDialog()">X</button>
+                </div>
+            </div>
+            <div class="padBottom10">
+                <div class="lineGradient ng-tns-c15-0"></div>
+            </div>
+            <div [style.display]="(selectedProd) ? 'none' : ''" class="selectCliTable"
+                style="overflow-y: none !important;">
+                <div class="bodyDocuments">
+                    <div class="tableContainer">
+                        <table class="table table-bordered table-striped table-hover table-sm table-borderless"
+                            id="ProductsTable">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Codigo</th>
+                                    <th>Producto</th>
+                                    <th>Unidad</th>
+                                    <th>Precio</th>
+                                    <th>Max. Disc</th>
+                                    <th>Inventario</th>
+                                    <th>Apartado</th>
+                                    <th>Por Llegar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let pro of products" (click)="selectProduct(pro)">
+                                    <th scope="row">{{pro.proCode}}</th>
+                                    <td>{{pro.proName}}</td>
+                                    <td>{{pro.proUnit}}</td>
+                                    <td>{{pro.proFinalPrice | currency:'MXN':'$':'1.2-2' }}</td>
+                                    <td>{{pro.proMaxPercDisc | percent}}</td>
+                                    <td>{{pro.invQty}}</td>
+                                    <td>{{pro.invRes}}</td>
+                                    <td>{{pro.invInc}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div [style.display]="(selectedProd) ? '' : 'none'" class="selectCliTable"
+                style="overflow-y: none !important;">
+                <div class="bodyDocuments">
+                    <div class="selectProH2">
+                        <div class="padBottom10 selectProH3">
+                            <a class="display-7 fw500">Codigo:</a>
+                            <a class="display-7 leftMargin textLeft">{{prod.proCode}} - {{prod.proName}}</a>
+                            <a>
+                                <button type="button" class="btn btn-warning marginRight10" (click)="deselectPro()"
+                                    *ngIf="btnAtras">Atras</button>
+                            </a>
+                            <a>
+                                <button type="button" class="btn btn-success" (click)="saveMov()"
+                                    *ngIf="!mov.movCompleted">Guardar</button>
+                            </a>
+                        </div>
+                        <div _ngcontent-adv-c10="" class="padBottom10">
+                            <div _ngcontent-adv-c10="" class="lineGradient ng-tns-c15-0"></div>
+                        </div>
+                        <div class="selectProH4">
+                            <div class="display-7 textLeft">
+                                <div class="padBottom10">
+                                    <form novalidate=""
+                                        class="form-inline my-2 my-lg-0 ng-untouched ng-pristine ng-valid">
+                                        <div class="input-group width100">
+                                            <div type="button" class="input-group-prepend">
+                                                <span class="input-group-text selectProBtn">Cantidad:</span>
+                                                <input type="number" min="1" step="1" [(ngModel)]="inputValue"
+                                                    name="inputValue" (keypress)="onlyNumbers($event)"
+                                                    (keyup)="confirmInventory()" class="form-control selectProBtn">
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="padBottom10">
+                                    <a class="fw500">Precio con IVA:</a>
+                                    <a class="leftMargin">{{prod.proFinalPrice | currency:'MXN':'$':'1.2-2'}}</a>
+                                </div>
+                                <div class="padBottom10">
+                                    <a class="fw500">Precio sin IVA:</a>
+                                    <a class="leftMargin">{{prod.proPrice| currency:'MXN':'$':'1.2-2'}}</a>
+                                </div>
+                                <div class="padBottom10">
+                                    <a class="fw500">Neto:</a>
+                                    <a class="leftMargin">{{mov.movNet | currency:'MXN':'$':'1.2-2'}}</a>
+                                </div>
+                                <div class="padBottom10 selectProH6">
+                                    <div>
+                                        <a class="fw500">Descuento:</a>
+                                        <a>Maximo descuento permitido ({{prod.proMaxPercDisc * 100}}%)</a>
+                                    </div>
+                                    <div class="selectProH7">
+                                        <button type="button" class="btn"
+                                            [ngClass]="{'btn-success': discountSelected[0], 'btn-light': !discountSelected[0]}"
+                                            (click)="changeDisc(0)">0%</button>
+                                        <button type="button" class="btn"
+                                            [ngClass]="{'btn-success': discountSelected[1], 'btn-light': !discountSelected[1]}"
+                                            (click)="changeDisc(5)">5%</button>
+                                        <button type="button" class="btn"
+                                            [ngClass]="{'btn-success': discountSelected[2], 'btn-light': !discountSelected[2]}"
+                                            (click)="changeDisc(10)">10%</button>
+                                        <button type="button" class="btn"
+                                            [ngClass]="{'btn-success': discountSelected[3], 'btn-light': !discountSelected[3]}"
+                                            (click)="changeDisc(15)">15%</button>
+                                        <button type="button" class="btn"
+                                            [ngClass]="{'btn-success': discountSelected[4], 'btn-light': !discountSelected[4]}"
+                                            (click)="changeDisc(20)">20%</button>
+                                    </div>
+                                </div>
+                                <div class="padBottom10">
+                                    <a class="fw500">Subtotal:</a>
+                                    <a class="leftMargin">{{mov.movSubtotal | currency:'MXN':'$':'1.2-2'}}</a>
+                                </div>
+                                <div class="padBottom10">
+                                    <a class="fw500">Impuestos:</a>
+                                    <a class="leftMargin">{{mov.movTax | currency:'MXN':'$':'1.2-2'}}</a>
+                                </div>
+                            </div>
+                            <div class="display-7 docDetalFootItem selectProH5">
+                                <div class="fw500 padBottom10">
+                                    <a>Inventario</a>
+                                </div>
+                                <div>
+                                    <a class="fw500">Diponible:</a>
+                                    <a class="leftMargin">{{prod.invQty}} {{prod.proUnit}}</a>
+                                </div>
+                                <div>
+                                    <a class="fw500">Apartados:</a>
+                                    <a class="leftMargin">{{prod.invRes}} {{prod.proUnit}}</a>
+                                </div>
+                                <div>
+                                    <a class="fw500">Por Llegar:</a>
+                                    <a class="leftMargin">{{prod.invInc}} {{prod.proUnit}}</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="padBottom10">
+                            <div class="lineGradient ng-tns-c15-0"></div>
+                        </div>
+                        <div>
+                            <a class="display-6 fw500">Total:</a>
+                            <a class="display-6 leftMargin">{{mov.movTotal | currency:'MXN':'$':'1.2-2'}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

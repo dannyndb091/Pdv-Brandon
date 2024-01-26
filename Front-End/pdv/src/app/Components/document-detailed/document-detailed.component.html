@@ -1,1 +1,142 @@
-<p>document-detailed works!</p>
+<div mat-dialog-content>
+    <div class="grid4">
+        <div class="docDetalBody">
+            <div class="selfVerticalCenter padBottom10 docDetalHeader">
+                <div class="marginRight10">
+                    <a class="display-5 prevent-select fw500">Documento de {{windowTitle}}</a>
+                </div>
+                <div>
+                    <a class="display-5 prevent-select">#{{document.invoice}}</a>
+                </div>
+                <div class="selfVerticalCenter marginRight10">
+                    <button *ngIf="document.docStatus && document.invoice > 0" type="button" class="btn btn-danger" (click)="deleteDoc()">{{cancelarText()}}</button>
+                </div>
+                <div class="selfVerticalCenter marginRight10">
+                    <button *ngIf="!document.docCompleted && document.docStatus && document.invoice > 0" type="button"
+                        class="btn btn-success">Pagar</button>
+                </div>
+                <div class="selfVerticalCenter">
+                    <button type="button" class="btn btn-danger" (click)="closeDialog()">X</button>
+                </div>
+            </div>
+            <div class="padBottom10 docDetalClient">
+                <div class="marginRight10">
+                    <form novalidate="" class="form-inline my-2 my-lg-0">
+                        <div class="input-group width100">
+                            <div type="button" class="input-group-prepend" (click)="selectClient()">
+                                <span class="input-group-text">Buscar Cliente:</span>
+                            </div>
+                            <a class="form-control">{{document.clCode}} - {{document.clName}}</a>
+                        </div>
+                    </form>
+                </div>
+                <div class="selfVerticalCenter marginRight10">
+                    <a class="display-6 prevent-select fw500">Total:</a>
+                </div>
+                <div class="selfVerticalCenter">
+                    <a class="display-6 prevent-select">{{document.docTotal | currency:'MXN':'$':'1.2-2' }}</a>
+                </div>
+            </div>
+            <div class="padBottom10">
+                <div class="lineGradient ng-tns-c15-0"></div>
+            </div>
+            <div class="padBottom10">
+                <a class="display-4 display-6 prevent-select" style="vertical-align: middle;">Productos</a>
+                <button _ngcontent-ebq-c9="" type="button" class="btn btn-success"
+                    *ngIf="document.docStatus && !document.docCompleted && document.invoice > 0" (click)="addProduct()"
+                    style="padding: 3px; font-size: small; margin-left: 10px;">Agregar</button>
+            </div>
+            <div class="padBottom10">
+                <div class="lineGradient ng-tns-c15-0"></div>
+            </div>
+            <div class="docDetalBodyCont">
+                <div class="docDetalProdGrid">
+                    <div class="bottomLine"><a>#</a></div>
+                    <div class="bottomLine"><a>Codigo - Producto</a></div>
+                    <div class="bottomLine"><a>Cant.</a></div>
+                    <div class="bottomLine"><a>PU</a></div>
+                    <div class="bottomLine"><a>Neto</a></div>
+                    <div class="bottomLine"><a>Desc.</a></div>
+                    <div class="bottomLine"><a>Subtotal.</a></div>
+                    <div class="bottomLine"><a>IVA</a></div>
+                    <div class="bottomLine"><a>Total</a></div>
+                    <div class="bottomLine"><a></a></div>
+                </div>
+                <div *ngFor="let m of document.movs; index as i" class="docDetalProdGrid">
+                    <div class="bottomLine">
+                        <a class="fw500">{{m.movLine}}</a>
+                    </div>
+                    <div class="bottomLine">
+                        <a>{{m.proCode}} - {{m.proName}}</a>
+                    </div>
+                    <div class="bottomLine">
+                        <a>{{m.proQty}}</a>
+                    </div>
+                    <div class="bottomLine">
+                        <a>{{m.movPu | currency:'MXN':'$':'1.2-2'}}</a>
+                    </div>
+                    <div class="bottomLine">
+                        <a>{{m.movNet | currency:'MXN':'$':'1.2-2'}}</a>
+                    </div>
+                    <div class="bottomLine">
+                        <a>{{m.movDiscount | currency:'MXN':'$':'1.2-2'}}</a>
+                    </div>
+                    <div class="bottomLine">
+                        <a>{{m.movSubtotal | currency:'MXN':'$':'1.2-2'}}</a>
+                    </div>
+                    <div class="bottomLine">
+                        <a>{{m.movTax | currency:'MXN':'$':'1.2-2'}}</a>
+                    </div>
+                    <div class="bottomLine">
+                        <a class="fw500">{{m.movTotal | currency:'MXN':'$':'1.2-2'}}</a>
+                    </div>
+                    <div class="bottomLine">
+                        <a *ngIf="!m.movCompleted" role="button" class="badge badge-warning badges" (click)="modifyMov(m,i)">🖊</a>
+                        <a *ngIf="!m.movCompleted" role="button" class="badge badge-danger badges" (click)="delMov(m,i)">x</a>
+                    </div>
+                </div>
+            </div>
+            <div class="padBottom10">
+                <div class="lineGradient ng-tns-c15-0"></div>
+            </div>
+            <div class="docDetalFooter">
+                <div class="docDetalFootItem">
+                    <div class="docDetalFootItem2">
+                        <a class="fw500">Productos:</a>
+                        <a>{{document.docProductQty}}</a>
+                    </div>
+                </div>
+                <div class="docDetalFootItem">
+                    <div class="docDetalFootItem2">
+                        <a class="fw500">Neto</a>
+                        <a>{{document.docNet | currency:'MXN':'$':'1.2-2' }}</a>
+                    </div>
+                </div>
+                <div class="docDetalFootItem">
+                    <div class="docDetalFootItem2">
+                        <a class="fw500">Descuento:</a>
+                        <a>{{document.docDiscount | currency:'MXN':'$':'1.2-2' }}</a>
+                    </div>
+                </div>
+                <div class="docDetalFootItem">
+                    <div class="docDetalFootItem2">
+                        <a class="fw500">Subtotal:</a>
+                        <a>{{document.docSubtotal | currency:'MXN':'$':'1.2-2' }}</a>
+                    </div>
+                </div>
+                <div class="docDetalFootItem">
+                    <div class="docDetalFootItem2">
+                        <a class="fw500">Impuesto:</a>
+                        <a>{{document.docTax | currency:'MXN':'$':'1.2-2' }}</a>
+                    </div>
+                </div>
+                <div class="docDetalFootItem">
+                    <div class="docDetalFootItem2">
+                        <a class="fw500">Total</a>
+                        <a>{{document.docTotal | currency:'MXN':'$':'1.2-2' }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

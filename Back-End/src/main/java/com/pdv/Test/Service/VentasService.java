@@ -1,9 +1,8 @@
 package com.pdv.Test.Service;
 
 import com.pdv.Test.Models.*;
-import com.pdv.Test.Models.DTOs.Ventas.VtaAddItem;
-import com.pdv.Test.Models.DTOs.Ventas.VtaCloseSell;
-import com.pdv.Test.Models.DTOs.Ventas.VtaNewDoc;
+import com.pdv.Test.Models.DTOs.Productos.ProductList;
+import com.pdv.Test.Models.DTOs.Ventas.*;
 import com.pdv.Test.Repository.*;
 import com.pdv.Test.Service.Others.Verifiers;
 import lombok.AllArgsConstructor;
@@ -14,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -121,11 +121,15 @@ public class VentasService {
 
             Inventario inv = invRep.findByInvPro(pro.getProId());
             if (inv == null) throw new RuntimeException("«ERR-V25»");
-            if (inv.getInvQty() < addItem.getProQty()) throw new RuntimeException("«ERR-V26»");
+            if (put){
+                if ((inv.getInvQty() + proMovExist.getMovQty()) < addItem.getProQty()) throw new RuntimeException("«ERR-V26»");
+            } else {
+                if (inv.getInvQty() < addItem.getProQty()) throw new RuntimeException("«ERR-V26»");
+            }
 
             if (pro.getProPrice().compareTo(addItem.getMovPU()) != 0) throw new RuntimeException("«ERR-V27»");
             BigDecimal maxDisc = pro.getProPrice().multiply(pro.getProMaxPercDisc());
-            if (addItem.getMovDisc().compareTo(maxDisc) > 0) throw new RuntimeException("«ERR-V28»");
+            if (addItem.getMovDisc().compareTo(maxDisc.multiply(BigDecimal.valueOf(addItem.getProQty()))) > 0) throw new RuntimeException("«ERR-V28»");
 
             if (addItem.getMovDisc().compareTo(addItem.getMovNet()) >= 0) throw new RuntimeException("«ERR-C31»");
             BigDecimal result = pro.getProPrice();
@@ -442,5 +446,131 @@ public class VentasService {
         } catch (Exception e){
             throw new HibernateException(e);
         }
+    }
+
+    @Transactional
+    public ResponseEntity<Object> getAllDocs() {
+        return getAllDocsTransaction();
+    }
+
+    @Transactional(rollbackFor = {HibernateException.class, RuntimeException.class})
+    private ResponseEntity<Object> getAllDocsTransaction() {
+        try {
+            List<Documentos> docs = docRep.findAllByDocTypeOrderByDocIdDesc(2);
+            if (docs.isEmpty()) throw new RuntimeException("");
+            List<GetDocs> data = new ArrayList<>();
+
+            for (Documentos doc : docs){
+                Optional<ClienteProveedor> cli = cliRep.findById(doc.getDocIdCliente());
+                if (cli.isEmpty()) throw new RuntimeException("");
+                int status = 0;
+                if (!doc.getDocStatus()){
+                    status = 2;
+                } else {
+                    if (doc.getDocCompleted()){
+                        status = 1;
+                    }
+                }
+
+                data.add(GetDocs.builder()
+                        .invoice(doc.getDocId())
+                        .date(doc.getDocDate())
+                        .code(cli.get().getClCode())
+                        .client(cli.get().getClName())
+                        .qty(doc.getDocProductQty())
+                        .net(doc.getDocNet())
+                        .disc(doc.getDocDiscount())
+                        .subtotal(doc.getDocSubtotal())
+                        .tax(doc.getDocTax())
+                        .total(doc.getDocTotal())
+                        .status(status)
+                        .statusText((status == 0) ? "Pendiente" : ((status == 1) ? "Cerrado" : "Cancelado")).build());
+            }
+
+            return ResponseEntity.ok().body(data);
+        } catch (Exception e){
+            throw new HibernateException(e);
+        }
+    }
+
+    public ResponseEntity<Object> getMov(Integer invoice, Integer movLine) {
+        Movimientos mov = movRep.findByMovDocIdAndMovLine(invoice,movLine);
+        Optional<Productos> pro = proRep.findById(mov.getMovProdId());
+        return pro.<ResponseEntity<Object>>map(productos -> ResponseEntity.ok(getMov.builder()
+                .movType(mov.getMovType())
+                .movLine(mov.getMovLine())
+                .proCode(productos.getProSku())
+                .proName(productos.getProName())
+                .proQty(mov.getMovQty())
+                .movPu(mov.getMovPU())
+                .movDiscount(mov.getMovDiscount())
+                .movNet(mov.getMovNet())
+                .movSubtotal(mov.getMovSubtotal())
+                .movTax(mov.getMovTax())
+                .movTotal(mov.getMovTotal())
+                .movCompleted(mov.getMovCompleted()).build())).orElseGet(() -> ResponseEntity.badRequest().body("No se pudo obtener el movimiento"));
+
+
+    }
+
+    public ResponseEntity<Object> getMovProd(String proSku) {
+        Productos pro = proRep.findByProSku(proSku);
+        Inventario inv = invRep.findByInvPro(pro.getProId());
+
+        return ResponseEntity.ok().body(ProductList.builder()
+                .proCode(pro.getProSku())
+                .proName(pro.getProName())
+                .proUnit(pro.getProUnit())
+                .proPrice(pro.getProPrice())
+                .proFinalPrice(pro.getProFinalPrice())
+                .proMaxPercDisc(pro.getProMaxPercDisc())
+                .invQty(inv.getInvQty())
+                .invRes(inv.getInvRes())
+                .invInc(inv.getInvInc()).build());
+    }
+
+    public ResponseEntity<Object> getDocDetail(Integer invoice) {
+        Optional<Documentos> doc = docRep.findById(invoice);
+        List<Movimientos> movs = movRep.findAllByMovDocIdOrderByMovLineAsc(doc.get().getDocId());
+        Optional<ClienteProveedor> cli = cliRep.findById(doc.get().getDocIdCliente());
+
+        DocDetailFront result = new DocDetailFront();
+        result.setInvoice(doc.get().getDocId());
+        result.setDocDate(doc.get().getDocDate());
+        result.setClCode(cli.get().getClCode());
+        result.setClName(cli.get().getClName());
+        result.setDocProductQty(doc.get().getDocProductQty());
+        result.setDocNet(doc.get().getDocNet());
+        result.setDocDiscount(doc.get().getDocDiscount());
+        result.setDocSubtotal(doc.get().getDocSubtotal());
+        result.setDocTax(doc.get().getDocTax());
+        result.setDocTotal(doc.get().getDocTotal());
+        result.setDocStatus(doc.get().getDocStatus());
+        result.setDocCompleted(doc.get().getDocCompleted());
+        result.setDocType(doc.get().getDocType());
+
+        List<DocMovFront> finalMovs = new ArrayList<>();
+        for (Movimientos m : movs){
+            Optional<Productos> p = proRep.findById(m.getMovProdId());
+
+            finalMovs.add(DocMovFront.builder()
+                    .movType(m.getMovType())
+                    .movLine(m.getMovLine())
+                    .proCode(p.get().getProSku())
+                    .proName(p.get().getProName())
+                    .proQty(m.getMovQty())
+                    .movPu(m.getMovPU())
+                    .movNet(m.getMovNet())
+                    .movDiscount(m.getMovDiscount())
+                    .movDiscountPerc(p.get().getProMaxPercDisc())
+                    .movSubtotal(m.getMovSubtotal())
+                    .movTax(m.getMovTax())
+                    .movTotal(m.getMovTotal())
+                    .movCompleted(m.getMovCompleted()).build());
+        }
+
+        result.setMovs(finalMovs);
+
+        return ResponseEntity.ok().body(result);
     }
 }

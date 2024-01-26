@@ -3,21 +3,50 @@
     <div class="docsHeader"> 
         <a class="display-4 prevent-select">{{titleDoc}}</a>
         <div class="self-right selfBottom">            
-            <button type="button" class="btn btn-success">{{btnText}}</button>
+            <button type="button" class="btn btn-success" (click)="nuevaVenta()">{{btnText}}</button>
         </div>
-        <form class="form-inline my-2 my-lg-0 selfBottom">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <a class="input-group-text">
-                    <img src="assets/filter.png">
-                </a>
-              </div>
-              <input type="text" class="form-control" placeholder="Invoice">
-            </div>
-          </form>
     </div>
     <!--Cuerpo de pantalla documentos, aqui estara la tabla de documentos-->
-    <div>
-
+    <div class="bodyDocuments">
+      <div class="tableContainer">
+        <table class="table table-bordered table-striped table-hover table-sm table-borderless" id="documentos">
+          <thead class="table-primary">
+            <tr>
+              <th>#</th>
+              <th>Fecha</th>
+              <th>Codigo</th>
+              <th>Cliente</th>
+              <th>Cant.</th>
+              <th>Neto</th>
+              <th>Descuento</th>
+              <th>Subtotal</th>
+              <th>IVA</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let doc of docs">
+              <th scope="row">{{doc.invoice}}</th>
+              <td>{{doc.date}}</td>
+              <td>{{doc.code}}</td>
+              <td>{{doc.client}}</td>
+              <td>{{doc.qty}}</td>
+              <td>{{doc.net | currency:'MXN':'$':'1.2-2' }}</td>
+              <td>{{doc.disc | currency:'MXN':'$':'1.2-2' }}</td>
+              <td>{{doc.subtotal | currency:'MXN':'$':'1.2-2' }}</td>
+              <td>{{doc.tax | currency:'MXN':'$':'1.2-2' }}</td>
+              <td>{{doc.total | currency:'MXN':'$':'1.2-2' }}</td>
+              <td><span [ngClass]="badges(doc.status)">{{doc.statusText}}</span></td>
+              <td>
+                <a *ngIf="doc.status === 0" role="button" class="badge badge-success badges" (click)="cerrarVenta(doc)">✔</a>
+                <a role="button" class="badge badge-warning badges" (click)="modifyDoc(doc.invoice)">🖊</a>
+                <a *ngIf="doc.status < 2" role="button"  class="badge badge-danger badges" (click)="cancelarVenta(doc.invoice,doc.status,doc.code)">✖</a>
+              </td>
+            </tr>                       
+          </tbody>
+        </table>
+      </div>
     </div>
 </div>

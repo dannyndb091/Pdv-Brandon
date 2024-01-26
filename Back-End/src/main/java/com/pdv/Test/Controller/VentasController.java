@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/sells")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost")
 public class VentasController {
     private final VentasService ventasService;
     private final ErrorsList errors;
@@ -86,6 +87,50 @@ public class VentasController {
     public ResponseEntity<Object> updateItem(@RequestBody VtaAddItem addItem){
         try {
             return ventasService.addSellItem(addItem, true);
+        }
+        catch (Exception e){
+            String error = e.getMessage().split("[«»]")[1];
+            return ResponseEntity.badRequest().body(errors.getErrorMsg(error));
+        }
+    }
+
+    @GetMapping(value = "get/all")
+    public ResponseEntity<Object> getAll(){
+        try {
+            return ventasService.getAllDocs();
+        }
+        catch (Exception e){
+            String error = e.getMessage().split("[«»]")[1];
+            return ResponseEntity.badRequest().body(errors.getErrorMsg(error));
+        }
+    }
+
+    @GetMapping(value = "get/mov/{invoice}/{movLine}")
+    public ResponseEntity<Object> getMov(@PathVariable Integer invoice, @PathVariable Integer movLine){
+        try {
+            return ventasService.getMov(invoice, movLine);
+        }
+        catch (Exception e){
+            String error = e.getMessage().split("[«»]")[1];
+            return ResponseEntity.badRequest().body(errors.getErrorMsg(error));
+        }
+    }
+
+    @GetMapping(value = "get/mov/{proSku}")
+    public ResponseEntity<Object> getMovProd(@PathVariable String proSku){
+        try {
+            return ventasService.getMovProd(proSku);
+        }
+        catch (Exception e){
+            String error = e.getMessage().split("[«»]")[1];
+            return ResponseEntity.badRequest().body(errors.getErrorMsg(error));
+        }
+    }
+
+    @GetMapping(value = "get/doc/{invoice}")
+    public ResponseEntity<Object> getDocDetail(@PathVariable Integer invoice){
+        try {
+            return ventasService.getDocDetail(invoice);
         }
         catch (Exception e){
             String error = e.getMessage().split("[«»]")[1];
